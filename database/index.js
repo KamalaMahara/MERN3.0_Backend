@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
 
 async function connectToDatabase() {
-  await mongoose.connect(
-    "mongodb+srv://kmlamahara:kmla_db@cluster0.d6zxgaf.mongodb.net/?appName=Cluster0"
-  );
+  await mongoose.connect(process.env.MONGODB_URI);
   console.log("Database connected successfullly...");
 }
 
