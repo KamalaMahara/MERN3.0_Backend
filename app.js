@@ -9,6 +9,17 @@ const fs = require("fs");
 const { storage, multer } = require("./Middleware/configMulter"); //importing the storage and multer object from configMulter.js
 const upload = multer({ storage: storage }); //creating the upload object by passing the storage object to multer function
 
+const cors=require("cors");
+
+
+
+app.use(cors(
+  {
+    origin:"http://localhost:5173"   //allowing request only from this origin 
+  }
+));
+
+
 app.get("/", (request, response) => {
   response.json({ Message: "helllllo worrrldd!" });
 });
