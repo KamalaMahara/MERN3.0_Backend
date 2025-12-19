@@ -11,8 +11,6 @@ const upload = multer({ storage: storage }); //creating the upload object by pas
 
 const cors=require("cors");
 
-
-
 app.use(cors(
   {
     origin:"http://localhost:5173"   //allowing request only from this origin 
@@ -67,20 +65,33 @@ app.get("/blog/:id", async (req, res) => {
 
 //delete blog from database and files from storage folder
 app.delete("/blog/:id", async (req, res) => {
-  const id = req.params.id;
-  const blog = await Blog.findById(id);
-  const imageName = blog.image;
-  fs.unlink(`storage/${imageName}`, (err) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("file deleted successfully");
+  try {
+    const id = req.params.id;
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({
+        message: "blog not found",
+      });
     }
-  });
-  res.status(200).json({
-    message: "blog deleted sucessfully",
-  });
+    const imageName = blog.image;
+    fs.unlink(`storage/${imageName}`, (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("file deleted successfully");
+      }
+    });
+    // Delete the blog document from DB
+    await Blog.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Blog deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error deleting blog" });
+  }
 });
+
+
 
 //update operation
 app.patch("/blog/:id", upload.single("image"), async (req, res) => {
