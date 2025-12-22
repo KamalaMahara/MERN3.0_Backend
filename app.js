@@ -24,8 +24,10 @@ app.get("/", (request, response) => {
 
 app.post("/blog", upload.single("image"), async (req, res) => {
   const { title, description, subtitle, image } = req.body;
-
-  const filename = req.file.filename; //getting the filename of the uploaded fule
+  let filename;
+if(req.file){
+ filename = req.file.filename;
+} //getting the filename of the uploaded fule
 
   if (!title || !description || !subtitle) {
     return res.status(400).json({
