@@ -13,7 +13,9 @@ const cors=require("cors");
 
 app.use(cors(
   {
-    origin:"http://localhost:5173"   //allowing request only from this origin 
+    origin:"http://localhost:5174" ,  //allowing request only from this origin 
+      methods: "GET,POST,PUT,DELETE,PATCH",
+
   }
 ));
 
@@ -26,7 +28,7 @@ app.post("/blog", upload.single("image"), async (req, res) => {
   const { title, description, subtitle, image } = req.body;
   let filename;
 if(req.file){
- filename = req.file.filename;
+ filename = "http://localhost:3000/"+ req.file.filename;
 } //getting the filename of the uploaded fule
 
   if (!title || !description || !subtitle) {
@@ -101,7 +103,7 @@ app.patch("/blog/:id", upload.single("image"), async (req, res) => {
   const { title, description, subtitle } = req.body;
   let imageName;
   if (req.file) {
-    imageName = req.file.filename;
+    imageName = "http://localhost:3000/"+ req.file.filename;
     const blog = await Blog.findById(id);
     const oldImageName = blog.image;
     fs.unlink(`storage/${oldImageName}`, (err) => {
