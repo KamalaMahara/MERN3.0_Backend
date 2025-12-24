@@ -28,7 +28,7 @@ app.post("/blog", upload.single("image"), async (req, res) => {
   const { title, description, subtitle, image } = req.body;
   let filename;
 if(req.file){
- filename = "http://localhost:3000/"+ req.file.filename;
+ filename = "https://mern3-0-backend-blog.onrender.com/"+ req.file.filename;
 } //getting the filename of the uploaded fule
 
   if (!title || !description || !subtitle) {
