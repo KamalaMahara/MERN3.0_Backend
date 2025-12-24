@@ -13,7 +13,7 @@ const cors=require("cors");
 
 app.use(cors(
   {
-    origin:"http://localhost:5173" ,  //allowing request only from this origin 
+    origin:["http://localhost:5173","https://blog-frontend-five-peach.vercel.app"] ,  //allowing request only from this origin 
       methods: "GET,POST,PUT,DELETE,PATCH",
 
   }
