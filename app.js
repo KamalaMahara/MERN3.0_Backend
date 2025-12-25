@@ -13,8 +13,8 @@ const cors=require("cors");
 
 app.use(cors(
   {
-    origin:["http://localhost:5174" ,"https://blog-frontend-lyia9o0qa-codecurlys-projects.vercel.app/"],  //allowing request only from this origin 
-      methods: "GET,POST,PUT,DELETE,PATCH",
+    origin:["http://localhost:5173" ,"https://blog-frontend-lyia9o0qa-codecurlys-projects.vercel.app"],  //allowing request only from this origin 
+      methods: ["GET","POST","PUT","DELETE","PATCH"],
 
   }
 ));
@@ -28,8 +28,8 @@ app.post("/blog", upload.single("image"), async (req, res) => {
   const { title, description, subtitle, image } = req.body;
   let filename;
 if(req.file){
- filename = "https://blog-frontend-lyia9o0qa-codecurlys-projects.vercel.app/"+ req.file.filename;
-} //getting the filename of the uploaded fule
+ filename = "https://mern3-0-backend-blog.onrender.com/" + req.file.filename;
+} //getting the filename of the uploaded file
 
   if (!title || !description || !subtitle) {
     return res.status(400).json({
@@ -103,7 +103,7 @@ app.patch("/blog/:id", upload.single("image"), async (req, res) => {
   const { title, description, subtitle } = req.body;
   let imageName;
   if (req.file) {
-    imageName = "https://blog-frontend-lyia9o0qa-codecurlys-projects.vercel.app/"+ req.file.filename;
+    imageName = "https://mern3-0-backend-blog.onrender.com/"+ req.file.filename;
     const blog = await Blog.findById(id);
     const oldImageName = blog.image;
     fs.unlink(`storage/${oldImageName}`, (err) => {
