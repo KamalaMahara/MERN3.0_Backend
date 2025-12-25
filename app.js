@@ -5,7 +5,7 @@ const Blog = require("./Model/blogModel");
 const app = express();
 app.use(express.json());
 connectToDatabase();
-const fs = require("fs");
+// const fs = require("fs");
 const { storage, multer } = require("./Middleware/configMulter"); //importing the storage and multer object from configMulter.js
 const upload = multer({ storage: storage }); //creating the upload object by passing the storage object to multer function
 
@@ -14,7 +14,7 @@ const cors=require("cors");
 app.use(cors(
   {
     origin:["http://localhost:5174" ,"https://blog-frontend-lyia9o0qa-codecurlys-projects.vercel.app"],  //allowing request only from this origin 
-      methods: "GET,POST,PUT,DELETE,PATCH",
+      methods: ["GET","POST","PUT","DELETE","PATCH"],
 
   }
 ));
@@ -25,24 +25,36 @@ app.get("/", (request, response) => {
 });
 
 app.post("/blog", upload.single("image"), async (req, res) => {
-  const { title, description, subtitle, image } = req.body;
-  let filename;
-if(req.file){
- filename = "https://mern3-0-backend-blog.onrender.com/"+ req.file.filename;
-} //getting the filename of the uploaded fule
+  try {
+    const { title, description, subtitle } = req.body;
 
-  if (!title || !description || !subtitle) {
-    return res.status(400).json({
-      message: "please provide all the required fields",
+    if (!title || !description || !subtitle) {
+      return res.status(400).json({
+        message: "please provide all the required fields",
+      });
+    }
+
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `${req.protocol}://${req.get("host")}/${req.file.filename}`;
+    }
+
+    await Blog.create({
+      title,
+      description,
+      subtitle,
+      image: imageUrl,
     });
-  } //validating the required fields
 
-  await Blog.create({ title, description, subtitle, image: filename });
-
-  res.status(200).json({
-    message: "blog api is workingggggggg...",
-  });
+    res.status(201).json({
+      message: "blog created successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
 });
+
 //get all blogs
 app.get("/blog", async (req, res) => {
   const blogs = await Blog.find(); //fetch all blogs from the database in array
@@ -77,14 +89,14 @@ app.delete("/blog/:id", async (req, res) => {
         message: "blog not found",
       });
     }
-    const imageName = blog.image;
-    fs.unlink(`storage/${imageName}`, (err) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("file deleted successfully");
-      }
-    });
+    // const imageName = blog.image;
+    // fs.unlink(`storage/${imageName}`, (err) => {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     console.log("file deleted successfully");
+    //   }
+    // });
     // Delete the blog document from DB
     await Blog.findByIdAndDelete(id);
 
@@ -99,31 +111,23 @@ app.delete("/blog/:id", async (req, res) => {
 
 //update operation
 app.patch("/blog/:id", upload.single("image"), async (req, res) => {
-  const id = req.params.id;
-  const { title, description, subtitle } = req.body;
-  let imageName;
-  if (req.file) {
-    imageName = "https://mern3-0-backend-blog.onrender.com/"+ req.file.filename;
-    const blog = await Blog.findById(id);
-    const oldImageName = blog.image;
-    fs.unlink(`storage/${oldImageName}`, (err) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("file deleted successfully");
-      }
-    });
+  try {
+    const { title, description, subtitle } = req.body;
+
+    const updateData = { title, description, subtitle };
+
+    if (req.file) {
+      updateData.image = `${req.protocol}://${req.get("host")}/${req.file.filename}`;
+    }
+
+    await Blog.findByIdAndUpdate(req.params.id, updateData);
+
+    res.json({ message: "blog updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-  await Blog.findByIdAndUpdate(id, {
-    title: title,
-    description: description,
-    subtitle: subtitle,
-    image: imageName,
-  });
-  res.status(200).json({
-    message: "blog upadated successfully",
-  });
 });
+
 
 app.use(express.static("storage")); //to make the storage folder only publically accessible
 // note:-- only the storage folder is made publically accessible not the entire project folder.if we did "/" then the entire project folder would be accessible which is a security risk
